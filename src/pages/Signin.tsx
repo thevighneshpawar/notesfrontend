@@ -6,7 +6,7 @@ import { Mail, KeyRound, LogIn } from "lucide-react";
 import logo from "../assets/singleLogo.png";
 import rightImage from "../assets/right-column.png";
 import { signin, verifyOtp } from "../api/auth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 
 const SignIn = () => {
@@ -39,16 +39,18 @@ const SignIn = () => {
     e.preventDefault();
     setError("");
     if (sendotp) {
+      setSendotp(false);
       try {
         const res = await signin(email);
         if (res.success) {
-          setSendotp(false);
           setTimer(60);
           setIsTimerActive(true);
         } else {
+          setSendotp(true);
           setError(res.message || "OTP verification failed");
         }
       } catch (error) {
+        setSendotp(true);
         console.error("Error during sign-in:", error);
       }
     } else {
@@ -200,12 +202,12 @@ const SignIn = () => {
 
                 <p className="mt-8 text-center text-sm text-gray-600">
                   Need an account?{" "}
-                  <a
-                    href="/signup"
+                  <Link
+                    to="/signup"
                     className="font-medium text-blue-600 underline-offset-2 hover:underline"
                   >
                     Create one
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>
@@ -217,7 +219,7 @@ const SignIn = () => {
           <img
             src={rightImage}
             alt="Authentication illustration"
-            className="absolute inset-0 h-full w-full py-8 object-cover"
+            className="absolute inset-0 h-full w-full py-8 object-unset"
           />
         </div>
       </div>

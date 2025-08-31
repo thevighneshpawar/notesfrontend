@@ -6,7 +6,7 @@ import { Mail, KeyRound, User, Calendar } from "lucide-react";
 import logo from "../assets/singleLogo.png";
 import rightImage from "../assets/right-column.png";
 import { signup, verifyOtp } from "../api/auth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 
 const SignUp = () => {
@@ -297,12 +297,12 @@ const SignUp = () => {
 
                 <p className="mt-8 text-center text-sm text-gray-600">
                   Already have an account?{" "}
-                  <a
-                    href="/signin"
+                  <Link
+                    to="/signin"
                     className="font-medium text-blue-600 underline-offset-2 hover:underline"
                   >
                     Sign in
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>
@@ -314,7 +314,7 @@ const SignUp = () => {
           <img
             src={rightImage}
             alt="Authentication illustration"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 pl-5 py-8 h-full w-full object-unset "
           />
         </div>
       </div>
