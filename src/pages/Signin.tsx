@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Mail, KeyRound, LogIn } from "lucide-react";
+import { Mail, KeyRound } from "lucide-react";
 import logo from "../assets/singleLogo.png";
 import rightImage from "../assets/right-column.png";
 import { signin, verifyOtp } from "../api/auth";
@@ -20,7 +20,7 @@ const SignIn = () => {
   const [error, setError] = useState("");
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     if (isTimerActive && timer > 0) {
       interval = setInterval(() => {

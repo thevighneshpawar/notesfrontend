@@ -12,6 +12,7 @@ const api = axios.create({
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
+  url?: string;
 }
 
 // Track if we're currently refreshing to prevent multiple simultaneous attempts
