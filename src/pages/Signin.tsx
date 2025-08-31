@@ -56,7 +56,6 @@ const SignIn = () => {
     } else {
       try {
         const res = await verifyOtp(email, otp);
-        console.log(res);
 
         if (res.user) {
           login(res.user);
@@ -64,7 +63,8 @@ const SignIn = () => {
         } else {
           setError(res.message || "OTP verification failed");
         }
-      } catch (error) {
+      } catch (error: any) {
+        setError(error.response.data.message || "OTP verification failed");
         console.error("Error verifying OTP:", error);
       }
     }
