@@ -2,20 +2,22 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Mail, KeyRound } from "lucide-react";
+import { Mail, KeyRound, LogIn } from "lucide-react";
 import logo from "../assets/singleLogo.png";
 import rightImage from "../assets/right-column.png";
 import { signin, verifyOtp } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [sendotp, setSendotp] = useState(true);
   const [timer, setTimer] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
-
+  const [error, setError] = useState("");
   // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -35,42 +37,44 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     if (sendotp) {
       try {
         const res = await signin(email);
-        console.log(res);
-        setSendotp(false);
-        // Start timer when OTP is sent
-        setTimer(60);
-        setIsTimerActive(true);
+        if (res.success) {
+          setSendotp(false);
+          setTimer(60);
+          setIsTimerActive(true);
+        } else {
+          setError(res.message || "OTP verification failed");
+        }
       } catch (error) {
         console.error("Error during sign-in:", error);
       }
     } else {
-      // Here you would typically verify the OTP with the backend
-      console.log("Verifying OTP:", otp);
-
       try {
         const res = await verifyOtp(email, otp);
         console.log(res);
 
         if (res.user) {
+          login(res.user);
           navigate("/notes");
+        } else {
+          setError(res.message || "OTP verification failed");
         }
       } catch (error) {
-        console.error("Error during sign-in:", error);
+        console.error("Error verifying OTP:", error);
       }
     }
   };
 
   const handleResendOtp = async () => {
-    if (timer > 0) return; // Prevent resend if timer is still active
+    if (timer > 0) return;
 
     try {
       const res = await signin(email);
       console.log("Resending OTP to:", email);
       console.log(res);
-      // Restart timer
       setTimer(60);
       setIsTimerActive(true);
     } catch (error) {
@@ -109,6 +113,11 @@ const SignIn = () => {
                 <p className="mt-2 text-sm text-gray-500">
                   Please login to continue to your account.
                 </p>
+                {error && (
+                  <div className="mt-4 rounded-md bg-red-50 p-4">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                )}
 
                 <form
                   onSubmit={handleSubmit}
@@ -132,52 +141,53 @@ const SignIn = () => {
                     </div>
                   </div>
 
-                  {/* OTP */}
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-700">
-                      OTP
-                    </label>
-                    <div className="relative">
-                      <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        required={!sendotp}
-                        placeholder="Enter OTP"
-                        className="h-11 w-full rounded-lg border border-gray-300 pl-10 pr-3 text-[15px] text-gray-900 placeholder-gray-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40"
-                      />
+                  {/* OTP (shown only when sendotp is false) */}
+                  {!sendotp && (
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                        OTP
+                      </label>
+                      <div className="relative">
+                        <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="text"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value)}
+                          required
+                          placeholder="Enter OTP"
+                          className="h-11 w-full rounded-lg border border-gray-300 pl-10 pr-3 text-[15px] text-gray-900 placeholder-gray-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Timer and Resend */}
-                  <div className="space-y-3">
-                    {!sendotp && (
-                      <div className="flex items-center justify-between">
-                        {timer > 0 ? (
-                          <span className="text-sm text-gray-600">
-                            Resend OTP in {formatTime(timer)}
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={handleResendOtp}
-                            className="text-sm font-medium text-blue-600 underline-offset-2 hover:underline"
-                          >
-                            Resend OTP
-                          </button>
-                        )}
-                      </div>
-                    )}
+                  {!sendotp && (
+                    <div className="flex items-center justify-between">
+                      {timer > 0 ? (
+                        <span className="text-sm text-gray-600">
+                          Resend OTP in {formatTime(timer)}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          className="text-sm font-medium text-blue-600 underline-offset-2 hover:underline"
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-                    <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      Keep me logged in
-                    </label>
-                  </div>
+                  {/* Keep me logged in */}
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    Keep me logged in
+                  </label>
 
                   {/* Submit */}
                   <button
@@ -203,7 +213,7 @@ const SignIn = () => {
         </div>
 
         {/* Right image panel */}
-        <div className="hidden  lg:block relative h-full w-full">
+        <div className="hidden lg:block relative h-full w-full">
           <img
             src={rightImage}
             alt="Authentication illustration"

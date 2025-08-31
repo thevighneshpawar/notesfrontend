@@ -16,7 +16,7 @@ export const verifyOtp = async (email: string, otp: string) => {
 };
 
 export const refreshAccessToken = async () => {
-  const res = await api.get("/auth/refresh");
+  const res = await api.post("/auth/refresh");
   return res.data;
 };
 

@@ -14,3 +14,11 @@ export const deleteNote = async (id: string) => {
   const res = await api.delete(`/notes/${id}`);
   return res.data;
 };
+
+export const updateNote = async (
+  id: string,
+  data: { title: string; content: string }
+) => {
+  const res = await api.put(`/notes/${id}`, data);
+  return res.data;
+};
