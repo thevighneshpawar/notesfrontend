@@ -82,13 +82,15 @@ const SignUp = () => {
 
     try {
       const res = await verifyOtp(email, otp);
-      console.log(res);
 
       if (res.user) {
         login(res.user);
         navigate("/notes");
+      } else {
+        setError(res.message || "OTP verification failed");
       }
     } catch (error) {
+      setError(error.response.data.message || "OTP verification failed");
       console.error("Error during verification:", error);
     } finally {
       setIsLoading(false);
