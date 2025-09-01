@@ -90,8 +90,8 @@ const SignUp = () => {
         setError(res.message || "OTP verification failed");
       }
     } catch (error) {
-      setError(error.response.data.message || "OTP verification failed");
-      console.error("Error during verification:", error);
+      setError("OTP verification failed");
+      //console.error("Error during verification:", error);
     } finally {
       setIsLoading(false);
     }
