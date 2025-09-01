@@ -29,3 +29,8 @@ export const getMe = async () => {
   const res = await api.get("/auth/me");
   return res.data.user;
 };
+
+export const getGoogleAuthUrl = async () => {
+  const res = await api.get(`/auth/google/auth-url`, { withCredentials: true });
+  return res.data; // { success, authUrl }
+};
